@@ -9,11 +9,11 @@ java version 25
 
 Cette application Java permet de :
 
-1. Saisir une **latitude** et une **longitude**.
-2. Appeler une **API météo** afin de récupérer les informations météorologiques.
-3. Désérialiser les données JSON à l’aide de **Jackson**.
-4. Récupérer les informations sur le **pays** via un service web.
-5. Insérer les données météo, la station météo et le pays dans une **base de données Oracle**.
+1. Saisir une **latitude** et une **longitude**, appeler une **API météo**, désérialiser les données JSON, récupérer les informations d'un **pays** via un service web et pour finir insérer ces données dans la base.
+2. Afficher la liste des stations dans la base de données.
+3. Afficher une station enregistrée et ses données météo à l'aide de son identifiant.
+4. Raffraichir toutes les données météo des stations enregistrées.
+5. Quitter l'application
 
 Le projet utilise **Maven** pour la gestion des dépendances.
 
@@ -21,10 +21,11 @@ La structure de données correspondant au projet se trouve dans le fichier **mai
 
 ---
 
+
 # Structure du projet
 
-
-**RMI_SERVER**
+## RMI_SERVER 
+```
 src
 ├── main
     ├── java
@@ -64,8 +65,10 @@ src
     └── resources
         ├── env
         └── OWM.sql
+```
 
-**Client**
+## RMI_SERVER 
+```
 src
 ├── main
     ├── java
@@ -86,7 +89,7 @@ src
     │           └── Log.java
     │
     └── resources
-        
+     
 
 ```
 
@@ -122,18 +125,24 @@ APIKEY=
 | --------- | ---------------------- |
 | APIKEY    | Clé API OpenWeatherMap |
 
+**Il faut également exécuter le script SQL dans le fichier OWM.sql**
 ---
 
 # Exécution
 
-Lancer la classe :
+1. Lancer le serveur RMI depuis nimporte quelle classe du projet **CLIENT**.
+2. Lancer le client depuis nimporte quelle classe du projet **RMI_SERVER**.
 
+Un menu s'ouvre laissant le choix à l'utilisateur :
 ```
-Main.java
+1. Afficher une donnée méteo à partir des coordonnées et enregister la station
+2. Voir la liste des stations météos
+3. Afficher toutes les données d'une station météo
+4. Rafraichir toutes les données des stations
+5. Quitter l'application
 ```
-
-L'application demande ensuite :
-
+**Choix numéro 1 :**
+L'application demande les coordonnées
 ```
 Entrer une latitude :
 Entrer une longitude :
@@ -145,9 +154,25 @@ Exemple :
 Entrer une latitude : 46,99
 Entrer une longitude : 6,93
 ```
+**Choix numéro 2 :**
+L'application affiche l'identifiant ainsi que le nom des stations actuellement dans la base de données.
+
+**Choix numéro 3 :**
+L'application demande à l'utilisateur l'identifiant de la station qu'il désire.
+
+```
+Veuillez entrer l'identifiant de la station (Entrez 'exit' pour revenir au menu)
+```
+L'application affiche ensuite toutes les informations de la station ainsi que les données météos qui y sont attachées.
+
+**Choix numéro 4 :**
+L'application raffraichit toutes les données météo des stations enregistrées.
+
+**Choix numéro 5 :**
+Quitter l'application... Si vous en êtes capable....
 
 ---
 
 # Auteurs
 
-Projet réalisé par Auriane Ndonfack et Nathan Favre
+Projet réalisé par Nathan Favre
