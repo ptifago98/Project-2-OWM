@@ -3,7 +3,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Meteo implements Serializable {
-    static Integer num = 0;
     private Integer numero;
     private String description;
     private Date date;
@@ -15,12 +14,7 @@ public class Meteo implements Serializable {
     private Double ventOrientation;
     private String icon;
 
-    public Meteo() {
-        this.numero = num++;
-    }
-
     public Meteo(String description, Date date, Double temperature, Double temperatureRessentie, Integer pression, Double humidite, Double ventVitesse, Double ventOrientation, String icon) {
-        this.numero = num++;
         this.description = description;
         this.date = date;
         this.temperature = temperature;
@@ -115,7 +109,6 @@ public class Meteo implements Serializable {
     @Override
     public String toString() {
         return "Meteo{" +
-                "numero=" + numero +
                 ", description='" + description + '\'' +
                 ", date=" + date +
                 ", temperature=" + temperature +

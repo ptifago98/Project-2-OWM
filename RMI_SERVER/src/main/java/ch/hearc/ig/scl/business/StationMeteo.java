@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StationMeteo implements Serializable {
-    static Integer num = 0;
     private Integer numero;
     private String idStation;
     private Integer timeZone;
@@ -16,13 +15,8 @@ public class StationMeteo implements Serializable {
     private String nom;
     private Map<Date, Meteo> WeatherMap;
 
-    public StationMeteo() {
-        this.numero = num++;
-    }
-
 
     public StationMeteo(String id, Integer timeZone, Pays pays, Double latitude, Double longitude, String nom) {
-        this.numero = num++;
         this.idStation = id;
         this.timeZone = timeZone;
         this.pays = pays;
@@ -104,7 +98,6 @@ public class StationMeteo implements Serializable {
     @Override
     public String toString() {
         return "StationMeteo {" +
-                "numero=" + numero +
                 ", timeZone=" + timeZone +
                 ", pays=" + pays +
                 ", latitude=" + latitude +

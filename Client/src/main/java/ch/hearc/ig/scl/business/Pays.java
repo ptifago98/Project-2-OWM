@@ -6,17 +6,14 @@ import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Pays implements Serializable {
-    static Integer num = 0;
     private Integer numero;
     private String name;
     private String code;
 
-    public  Pays() {
-        this.numero = num++;
-    }
+    public Pays(){
 
+    }
     public Pays(String name, String code) {
-        this.numero = num++;
         this.name = name;
         this.code = code;
     }
@@ -48,7 +45,6 @@ public class Pays implements Serializable {
     @Override
     public String toString() {
         return "Pays {" +
-                "numero=" + numero +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 '}';

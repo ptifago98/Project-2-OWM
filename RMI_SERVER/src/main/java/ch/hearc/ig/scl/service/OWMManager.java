@@ -18,21 +18,36 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     public OWMManager() throws RemoteException {
     }
+    private Connection getConnection(){
+        if (DBConnection.getConnection() == null) {
+            Log.warn("Problème lors de la connexion à la base de données");
+            return null;
+        }else{
+            return DBConnection.getConnection();
+        }
+
+    }
+    // Persistance en base de données
+
 
     @Override
     public boolean insertAll(Double lat, Double lon) {
+        Connection connection = getConnection();
         // Appel de l'API
         HttpResponse<String> response;
         try {
             response = ApiCallService.callAPI(lat, lon);
-        } catch (NullPointerException e) {
+        }catch (NullPointerException e) {
             Log.warn("La clé d'API ou le lien n'est pas correcte");
             return false;
-        } catch (RuntimeException e) {
+        }catch (RuntimeException e) {
             Log.warn("Vous n'êtes pas connecté à Internet ou au VPN de l'école");
             return false;
         }
@@ -61,39 +76,40 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
             return false;
         }
 
-        // Persistance en base de données
-        Connection connection = DBConnection.getConnection();
-        if (connection == null) {
-            Log.warn("Problème lors de la connexion à la base de données");
-            return false;
-        }
 
         try {
             connection.setAutoCommit(false);
-
             PaysRepository    paysRepo    = new PaysRepository(connection);
             StationRepository stationRepo = new StationRepository(connection);
             MeteoRepository   meteoRepo   = new MeteoRepository(connection);
 
             try {
-                paysRepo.insert(station.getPays());
+                if(!paysRepo.exists(station.getPays())){
+                    paysRepo.insert(station.getPays());
+                }
+
             } catch (SQLException e) {
                 // Le pays existe probablement déjà (contrainte d'unicité) → on continue
                 Log.info("Pays déjà présent ou non inséré : " + e.getMessage());
-                return false;
             }
 
             try {
-                stationRepo.insert(station, station.getPays());
+                if(!stationRepo.exists(station)){
+                   stationRepo.insert(station, station.getPays());
+                }
+
+
             } catch (SQLException e) {
                 // La station existe probablement déjà → on continue
                 Log.info("Station déjà présente ou non insérée : " + e.getMessage());
-                return false;
             }
 
             // L'insertion météo est critique : si elle échoue, on rollback
-            meteoRepo.insert(meteo, station);
-
+            if(meteoRepo.exists(meteo, station)){
+                return false;
+            }else{
+                meteoRepo.insert(meteo, station);
+            }
             connection.commit();
             return true;
 
@@ -112,5 +128,28 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
                 Log.warn("Erreur lors de la fermeture de la connexion : " + closeEx.getMessage());
             }
         }
+    }
+
+    @Override
+    public List<StationMeteo> getStations() throws RemoteException {
+        Connection connection = getConnection();
+        StationRepository stationRepo = new StationRepository(connection);
+
+        try {
+            return stationRepo.getAllStations();
+        } catch (SQLException e) {
+            throw new RemoteException("Erreur lors de la récupération des stations", e);
+        }
+    }
+
+    @Override
+    public StationMeteo getMeteo() throws RemoteException{
+        Connection connection = getConnection();
+        StationRepository stationRepo = new StationRepository(connection);
+
+        try {
+            return stationRepo.get
+        }
+        return null;
     }
 }
