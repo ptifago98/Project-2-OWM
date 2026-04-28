@@ -18,9 +18,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     public OWMManager() throws RemoteException {
@@ -121,7 +119,10 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
                 Log.warn("Erreur lors du rollback : " + rollbackEx.getMessage());
             }
             return false;
-        } finally {
+        }catch (NullPointerException e){
+            Log.warn(e.getMessage());
+            return false;
+        }finally {
             try {
                 connection.close();
             } catch (SQLException closeEx) {
@@ -153,4 +154,89 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public boolean refreshData() throws RemoteException{
+        Connection connection = getConnection();
+        if (connection == null) {
+            return false;
+        }
+        // Appel de l'API
+        HttpResponse<String> response;
+        try {
+            connection.setAutoCommit(false);
+            StationRepository stationRepo = new StationRepository(connection);
+            MeteoRepository meteoRepo = new MeteoRepository(connection);
+
+            // 1. Récupérer toutes les stations déjà en base
+            List<StationMeteo> stations = stationRepo.getAllStations();
+            if (stations == null || stations.isEmpty()) {
+                Log.info("Aucune station à rafraîchir");
+                return false;
+            }
+            int success = 0;
+            int failed = 0;
+            int skipped = 0;
+
+            // 2. Préparer le mapper Jackson une seule fois
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(Meteo.class, new MeteoDeserializer());
+            module.addDeserializer(StationMeteo.class, new StationMeteoDeserializer());
+            mapper.registerModule(module);
+
+            // 3. Pour chaque station, rappeler l'API et insérer la météo
+            for (StationMeteo station : stations) {
+                try {
+                    response = ApiCallService.callAPI(
+                            station.getLatitude(),
+                            station.getLongitude()
+                    );
+
+                    Meteo meteo = mapper.readValue(response.body(), Meteo.class);
+
+                    // Évite les doublons (même date pour une même station)
+                    if (meteoRepo.exists(meteo, station)) {
+                        skipped++;
+                        Log.info("Météo déjà présente pour la station " + station.getNom());
+                    } else {
+                        meteoRepo.insert(meteo, station);
+                        success++;
+                        Log.info("Météo rafraîchie pour " + station.getNom());
+                    }
+
+                } catch (RuntimeException e) {
+                    failed++;
+                    Log.warn("Échec du rafraîchissement pour " + station.getNom() + " : " + e.getMessage());
+                } catch (JsonProcessingException e) {
+                    failed++;
+                    Log.warn("Erreur de désérialisation pour " + station.getNom() + " : " + e.getMessage());
+                } catch (SQLException e) {
+                    failed++;
+                    Log.warn("Erreur SQL pour " + station.getNom() + " : " + e.getMessage());
+                }
+            }
+
+            connection.commit();
+            Log.info(String.format("Rafraîchissement terminé : %d succès, %d ignorés, %d échecs",
+                    success, skipped, failed));
+
+            return success > 0;
+
+        } catch (SQLException e) {
+            Log.warn("Erreur SQL, rollback effectué : " + e.getMessage());
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                Log.warn("Erreur lors du rollback : " + rollbackEx.getMessage());
+            }
+            return false;
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException closeEx) {
+                Log.warn("Erreur lors de la fermeture de la connexion : " + closeEx.getMessage());
+            }
+        }
+    }
+
 }

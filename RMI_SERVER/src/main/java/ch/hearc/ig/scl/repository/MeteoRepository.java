@@ -93,7 +93,7 @@ public class MeteoRepository {
             while (result.next()) {
                 Meteo meteo = new Meteo(
                         result.getString("DESCRIPTION"),
-                        result.getDate("DATE_MESURE"),
+                        result.getTimestamp("DATE_MESURE"),
                         result.getDouble("TEMPERATURE"),
                         result.getDouble("TEMP_RESSENTI"),
                         result.getInt("PRESSION"),

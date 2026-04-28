@@ -1,5 +1,6 @@
 package ch.hearc.ig.scl.business;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Meteo implements Serializable {
@@ -108,9 +109,10 @@ public class Meteo implements Serializable {
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         return String.format(
                 "[%s] %s | %.1f°C (ressenti %.1f°C) | Humidité %.0f%% | Pression %d hPa | Vent %.1f m/s à %.0f°",
-                date, description, temperature, temperatureRessentie,
+                sdf.format(date), description, temperature, temperatureRessentie,
                 humidite, pression, ventVitesse, ventOrientation);
     }
 }

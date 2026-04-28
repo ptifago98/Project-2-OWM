@@ -12,6 +12,7 @@ public interface IOWMManager extends Remote{
     boolean insertAll(Double lat, Double lon) throws RemoteException;
     List<StationMeteo> getStations() throws RemoteException;
     StationMeteo getMeteo(String idStation) throws RemoteException;
+    boolean refreshData() throws RemoteException;
 
 
 }

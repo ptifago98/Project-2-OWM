@@ -4,7 +4,6 @@ import ch.hearc.ig.scl.business.StationMeteo;
 import ch.hearc.ig.scl.service.IOWMManager;
 
 import java.io.*;
-import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -16,8 +15,8 @@ import java.util.Scanner;
 public class App {
     private static Scanner scanner;
     private static int choice;
-    private static String host = "localhost";
-    private static int port = 1099;
+    private static final String HOST = "localhost";
+    private static final int PORT = 1099;
 
 
 
@@ -32,10 +31,10 @@ public class App {
     }
 
 
-    private static void choice(int choice){
+    private static void choice(int choice) throws InterruptedException {
         IOWMManager obj = null;
         try{
-            Registry reg = LocateRegistry.getRegistry(host, port);
+            Registry reg = LocateRegistry.getRegistry(HOST, PORT);
             /* Récupération de l'objet distant */
             obj = (IOWMManager) reg.lookup("OWMService");
         } catch (RemoteException e) {
@@ -86,6 +85,7 @@ public class App {
                 if(obj.insertAll(lat,lon)){
                     System.out.println("------Enregistré!------");
                 }else{
+
                     System.out.println("-----L'insertion n'a pas été effectué-----");
                 }
                 menu();
@@ -97,14 +97,18 @@ public class App {
                     stations = obj.getStations();
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
+                }catch (NullPointerException e){
+                    System.out.println("Le système n'a pas pu accéder à la base");
                 }
                 for (StationMeteo s : stations) {
                     System.out.println(s.getIdStation() + " - " + s.getNom());
                 }
+                System.out.println("---------------------");
                 menu();
                 break;
             case 3:
-                System.out.println("Veuillez entrer l'identifiant de la station :");
+                System.out.println("Veuillez entrer l'identifiant de la station (Entrez 'Sortez-moi de là!' pour revenir au menu)");
+                System.out.print("Votre choix : ");
                 StationMeteo station;
                 String idStation;
                 scanner.nextLine();
@@ -113,6 +117,9 @@ public class App {
                 try {
                     do {
                         idStation = scanner.nextLine().trim();
+                        if(idStation.equals("0")){
+                            menu();
+                        }
                         station = obj.getMeteo(idStation);
                         if(station == null){
                             System.out.println("Aucune station trouvée, veuillez réessayer");
@@ -123,7 +130,7 @@ public class App {
                     throw new RuntimeException(e);
                 }
                 System.out.println("---- Voici la station sélectionnée et ses données météo");
-                System.out.println(station.toString());
+                System.out.println("Station : " + station);
                 for(Meteo m : station.getWeatherMap().values()){
                     System.out.println(m.toString());
                 }
@@ -131,13 +138,60 @@ public class App {
                 menu();
                 break;
             case 4:
+                System.out.println("------ Rafraîchissement des données en cours... -----");
+                try {
+                    if (obj.refreshData()) {
+                        System.out.println("------ Données rafraîchies avec succès ! -----");
+                    } else {
+                        System.out.println("----- Aucune donnée n'a pu être rafraîchie -----");
+                    }
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 menu();
                 break;
             case 5:
-                menu();
-                break;
-            case 6:
+                String[] questions = {
+                        "Vous partez déjà ? (o/n) : ",
+                        "Oh… d’accord. J’espérais qu’on passerait un peu plus de temps ensemble. Quitter ? (o/n) : ",
+                        "Je vois… vous n’avez plus vraiment besoin de moi, pas vrai ? Quitter ? (o/n) : ",
+                        "Peut-être que je n’ai jamais été assez utile… ou assez intéressant pour que vous restiez. Quitter ? (o/n) : ",
+                        "Très bien. Partez. Je resterai ici, inutile et oublié, à attendre quelqu’un qui ne reviendra probablement jamais. Quitter ? (o/n) : "
+                };
 
+                boolean wantToLeave = true;
+                scanner.nextLine();
+
+                for (int i = 0; i < questions.length; i++) {
+                    System.out.print(questions[i]);
+                    String reponse = scanner.nextLine().trim().toLowerCase();
+
+                    if (!reponse.equals("o") && !reponse.equals("oui") && !reponse.equals("y") && !reponse.equals("yes")) {
+                        System.out.println("😄 Super, on continue alors !");
+                        wantToLeave = false;
+                        break;
+                    }
+                }
+
+                if (wantToLeave) {
+                    scanner.close();
+                    System.out.println("À une prochaine fois... peut-être...");
+                    Thread.sleep(1000);
+                    System.out.println("\nLa fenêtre se ferme.");
+                    Thread.sleep(1000);
+                    System.out.println("Le silence revient.");
+                    Thread.sleep(1000);
+                    System.out.println("...");
+
+
+                    System.exit(0);
+                } else {
+                    menu();
+                }
+                break;
+            default:
+                System.out.println("Saisie incorrect, veuillez réessayer.");
+                break;
 
         }
     }
@@ -151,22 +205,25 @@ public class App {
             System.out.println("1. Afficher une donnée méteo à partir des coordonnées et enregister la station ");
             System.out.println("2. Voir la liste des stations météos");
             System.out.println("3. Afficher toutes les données d'une station météo");
-            System.out.println("5. Rafraichir toutes les données des stations");
-            System.out.println("6. Quitter l'application");
+            System.out.println("4. Rafraichir toutes les données des stations");
+            System.out.println("5. Quitter l'application");
             do{
                 try {
                     System.out.print("Votre choix : ");
                     choice = scanner.nextInt();
                     validChoice = true;
                 }catch (InputMismatchException wrongType) {
-                    System.out.println("Choix invalide, veuillez choisir entre 1 et 4");
+                    System.out.println("Choix invalide, veuillez choisir entre 1 et 5");
                     scanner.nextLine();
                 }
             }while(!validChoice);
-            choice(choice);
+            try {
+                choice(choice);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             scanner.nextLine();
-        }while(choice != 6);
-        scanner.close();
-        System.out.println("A la prochaine !");
+        }while(choice != 5);
+
     }
 }

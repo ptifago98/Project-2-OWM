@@ -2,7 +2,7 @@ package ch.hearc.ig.scl.business;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class StationMeteo implements Serializable {
@@ -24,7 +24,7 @@ public class StationMeteo implements Serializable {
         this.longitude = longitude;
         this.nom = nom;
 
-        this.WeatherMap = new HashMap<>();
+        this.WeatherMap = new LinkedHashMap<>();
     }
 
     public String getIdStation() {
@@ -98,6 +98,6 @@ public class StationMeteo implements Serializable {
     @Override
     public String toString() {
         return String.format("%s (%s) - lat: %.4f, lon: %.4f, fuseau: UTC%+d",
-                nom, pays, latitude, longitude, timeZone);
+                nom, pays, latitude, longitude, timeZone / 3600);
     }
 }
