@@ -64,7 +64,7 @@ src
         ├── env
         └── OWM.sql
 
-**Client**
+## RMI_SERVER 
 src
 ├── main
     ├── java
