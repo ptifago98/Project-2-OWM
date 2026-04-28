@@ -67,7 +67,7 @@ src
         └── OWM.sql
 ```
 
-## RMI_SERVER 
+## Client 
 ```
 src
 ├── main
