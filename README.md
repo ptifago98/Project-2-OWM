@@ -22,9 +22,8 @@ La structure de données correspondant au projet se trouve dans le fichier **mai
 ---
 
 # Structure du projet
+## RMI_SERVER 
 
-
-**RMI_SERVER**
 src
 ├── main
     ├── java
