@@ -19,11 +19,11 @@ Le projet utilise **Maven** pour la gestion des dépendances.
 
 La structure de données correspondant au projet se trouve dans le fichier **main/resources/OWM.sql**.
 
----
+
 
 # Structure du projet
 ## RMI_SERVER 
-
+---
 src
 ├── main
     ├── java
@@ -63,7 +63,7 @@ src
     └── resources
         ├── env
         └── OWM.sql
-
+---
 ## RMI_SERVER 
 src
 ├── main
@@ -85,7 +85,7 @@ src
     │           └── Log.java
     │
     └── resources
-        
+---        
 
 ```
 
