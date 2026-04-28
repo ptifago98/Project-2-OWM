@@ -108,16 +108,9 @@ public class Meteo implements Serializable {
 
     @Override
     public String toString() {
-        return "Meteo{" +
-                ", description='" + description + '\'' +
-                ", date=" + date +
-                ", temperature=" + temperature +
-                ", temperatureRessentie=" + temperatureRessentie +
-                ", pression=" + pression +
-                ", humidite=" + humidite +
-                ", ventVitesse=" + ventVitesse +
-                ", ventOrientation=" + ventOrientation +
-                ", icon='" + icon + '\'' +
-                '}';
+        return String.format(
+                "[%s] %s | %.1f°C (ressenti %.1f°C) | Humidité %.0f%% | Pression %d hPa | Vent %.1f m/s à %.0f°",
+                date, description, temperature, temperatureRessentie,
+                humidite, pression, ventVitesse, ventOrientation);
     }
 }

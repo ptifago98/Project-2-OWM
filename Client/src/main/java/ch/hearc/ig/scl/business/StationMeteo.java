@@ -97,12 +97,7 @@ public class StationMeteo implements Serializable {
 
     @Override
     public String toString() {
-        return "StationMeteo {" +
-                ", timeZone=" + timeZone +
-                ", pays=" + pays +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", nom='" + nom + '\'' +
-                '}';
+        return String.format("%s (%s) - lat: %.4f, lon: %.4f, fuseau: UTC%+d",
+                nom, pays, latitude, longitude, timeZone);
     }
 }

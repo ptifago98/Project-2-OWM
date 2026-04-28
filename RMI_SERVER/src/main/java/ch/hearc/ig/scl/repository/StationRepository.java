@@ -20,20 +20,18 @@ public class StationRepository {
         this.CONNECTION = connection;
     }
     public boolean exists(StationMeteo station) throws SQLException {
-        final String QUERY = "SELECT 1 FROM STATION WHERE ID_STATION = ? ";
-        PreparedStatement myStatement;
+        return exists(station.getIdStation());
+    }
 
-        try{
-            myStatement = CONNECTION.prepareStatement(QUERY);
-            myStatement.setString(1,station.getIdStation());
+    public boolean exists(String idStation) throws SQLException {
+        final String QUERY = "SELECT 1 FROM STATION WHERE ID_STATION = ?";
+
+        try {
+            PreparedStatement myStatement = CONNECTION.prepareStatement(QUERY);
+            myStatement.setString(1, idStation);
             ResultSet result = myStatement.executeQuery();
-            if(result.next()){
-                return true;
-            }else{
-                return false;
-            }
-
-        }catch(SQLException e){
+            return result.next();
+        } catch (SQLException e) {
             Log.warn(String.valueOf(e));
             return false;
         }
@@ -95,54 +93,43 @@ public class StationRepository {
 
     }
     public StationMeteo getStation(String stationId) throws SQLException{
-        final String QUERY = "SELECT S.ID_STATION, S.TIME_ZONE, S.LATITUDE, S.LONGITUDE, S.NOM, P.CODE FROM STATION S JOIN PAYS P ON P.NUMERO = S.NUM_PAYS";
-        PreparedStatement myStatement;
+        if(!exists(stationId)){
+            return null;
+        }
+        final String QUERY = "SELECT S.*, P.CODE FROM STATION S JOIN PAYS P ON P.NUMERO = S.NUM_PAYS WHERE ID_STATION = ?";
+        MeteoRepository meteoRepo = new MeteoRepository(CONNECTION);
+        List<Meteo> dataMeteo = meteoRepo.getMeteo(stationId);
+
         try{
-            myStatement = CONNECTION.prepareStatement(QUERY);
+            PreparedStatement myStatement = CONNECTION.prepareStatement(QUERY);
+            myStatement.setString(1, stationId);
             ResultSet result = myStatement.executeQuery();
-            Pays pays = new Pays();
-            Meteo meteo = new Meteo();
 
-
-            while (result.next()) {
-                pays.setCode(result.getString("CODE"));
-                ApiCallPaysService.callApiName(pays);
-                StationMeteo stationMeteo = new StationMeteo(
-                        result.getString("ID_STATION"),
-                        result.getInt("TIME_ZONE"),
-                        pays,
-                        result.getDouble("LATITUDE"),
-                        result.getDouble("LONGITUDE"),
-                        result.getString("NOM")
-                );
-                stationMeteo.addWeather(meteo);
+            if (!result.next()) {
+                return null;
             }
 
-            return stations;
+            Pays pays = new Pays();
+            pays.setCode(result.getString("CODE"));
+            ApiCallPaysService.callApiName(pays);
+
+            StationMeteo stationMeteo = new StationMeteo(
+                    result.getString("ID_STATION"),
+                    result.getInt("TIME_ZONE"),
+                    pays,
+                    result.getDouble("LATITUDE"),
+                    result.getDouble("LONGITUDE"),
+                    result.getString("NOM")
+            );
+
+            for (Meteo m : dataMeteo){
+                stationMeteo.addWeather(m);
+            }
+
+            return stationMeteo;
         }catch (SQLException e){
             Log.warn(String.valueOf(e));
             return null;
         }
-    }
-    public List<Meteo> getMeteo(String idStation) throws SQLException{
-        final String QUERY = "SELECT * FROM METEO WHERE (NUM_STATION = (SELECT NUMERO FROM STATION WHERE ID_STATION = ?))";
-        List<Meteo> dataMeteo = new ArrayList<>();
-        PreparedStatement myStatement;
-
-        try{
-            myStatement = CONNECTION.prepareStatement(QUERY);
-            myStatement.setString(1,idStation);
-            ResultSet result = myStatement.executeQuery();
-
-
-
-
-
-        }
-
-
-
-
-
     }
 }

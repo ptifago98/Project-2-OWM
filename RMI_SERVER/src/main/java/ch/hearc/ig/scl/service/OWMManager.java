@@ -143,13 +143,14 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     }
 
     @Override
-    public StationMeteo getMeteo() throws RemoteException{
+    public StationMeteo getMeteo(String idStation) throws RemoteException{
         Connection connection = getConnection();
         StationRepository stationRepo = new StationRepository(connection);
 
         try {
-            return stationRepo.get
+            return stationRepo.getStation(idStation);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }

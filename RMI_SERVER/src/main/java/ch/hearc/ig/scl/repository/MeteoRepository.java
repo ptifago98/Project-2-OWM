@@ -5,6 +5,8 @@ import ch.hearc.ig.scl.business.StationMeteo;
 import ch.hearc.ig.scl.tools.Log;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeteoRepository {
     private final Connection CONNECTION;
@@ -75,6 +77,39 @@ public class MeteoRepository {
             }
         } catch (SQLException e){
             throw e;
+        }
+    }
+    public List<Meteo> getMeteo(String idStation) throws SQLException {
+        final String QUERY = "SELECT * FROM METEO WHERE (NUM_STATION = (SELECT NUMERO FROM STATION WHERE ID_STATION = ?)) ORDER BY DATE_MESURE";
+
+        List<Meteo> dataMeteo = new ArrayList<>();
+        PreparedStatement myStatement;
+
+        try {
+            myStatement = CONNECTION.prepareStatement(QUERY);
+            myStatement.setString(1, idStation);
+            ResultSet result = myStatement.executeQuery();
+
+            while (result.next()) {
+                Meteo meteo = new Meteo(
+                        result.getString("DESCRIPTION"),
+                        result.getDate("DATE_MESURE"),
+                        result.getDouble("TEMPERATURE"),
+                        result.getDouble("TEMP_RESSENTI"),
+                        result.getInt("PRESSION"),
+                        result.getDouble("HUMIDITE"),
+                        result.getDouble("VENT_VITESSE"),
+                        result.getDouble("VENT_ORIENTATION"),
+                        result.getString("ICON")
+                );
+                dataMeteo.add(meteo);
+            }
+            return dataMeteo;
+
+
+        } catch (SQLException e) {
+            Log.warn(String.valueOf(e));
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
 package ch.hearc.ig.scl.app;
+import ch.hearc.ig.scl.business.Meteo;
 import ch.hearc.ig.scl.business.StationMeteo;
 import ch.hearc.ig.scl.service.IOWMManager;
 
@@ -104,8 +105,29 @@ public class App {
                 break;
             case 3:
                 System.out.println("Veuillez entrer l'identifiant de la station :");
-                int id = Integer.parseInt(scanner.nextLine());
-                System.out.println(id);
+                StationMeteo station;
+                String idStation;
+                scanner.nextLine();
+
+
+                try {
+                    do {
+                        idStation = scanner.nextLine().trim();
+                        station = obj.getMeteo(idStation);
+                        if(station == null){
+                            System.out.println("Aucune station trouvée, veuillez réessayer");
+                        }
+                    }while (station == null);
+
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+                System.out.println("---- Voici la station sélectionnée et ses données météo");
+                System.out.println(station.toString());
+                for(Meteo m : station.getWeatherMap().values()){
+                    System.out.println(m.toString());
+                }
+                System.out.println("--------------------------");
                 menu();
                 break;
             case 4:
@@ -133,6 +155,7 @@ public class App {
             System.out.println("6. Quitter l'application");
             do{
                 try {
+                    System.out.print("Votre choix : ");
                     choice = scanner.nextInt();
                     validChoice = true;
                 }catch (InputMismatchException wrongType) {

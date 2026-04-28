@@ -44,9 +44,6 @@ public class Pays implements Serializable {
 
     @Override
     public String toString() {
-        return "Pays {" +
-                ", code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return name + " (" + code + ")";
     }
 }
