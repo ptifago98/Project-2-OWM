@@ -130,8 +130,8 @@ APIKEY=
 
 # Exécution
 
-1. Lancer le serveur RMI depuis nimporte quelle classe du projet **CLIENT**.
-2. Lancer le client depuis nimporte quelle classe du projet **RMI_SERVER**.
+1. Lancer le serveur RMI depuis nimporte quelle classe du projet **RMI_SERVER**.
+2. Lancer le client depuis nimporte quelle classe du projet **CLIENT**.
 
 Un menu s'ouvre laissant le choix à l'utilisateur :
 ```
