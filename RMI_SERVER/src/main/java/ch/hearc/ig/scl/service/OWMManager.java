@@ -23,20 +23,19 @@ import java.util.List;
 public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     public OWMManager() throws RemoteException {
     }
-    private Connection getConnection(){
-        if (DBConnection.getConnection() == null) {
+    private Connection getConnection() throws RemoteException {
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) {
             Log.warn("Problème lors de la connexion à la base de données");
-            return null;
-        }else{
-            return DBConnection.getConnection();
+            throw new RemoteException("Impossible de se connecter à la base de données");
         }
-
+        return conn;
     }
     // Persistance en base de données
 
 
     @Override
-    public boolean insertAll(Double lat, Double lon) {
+    public boolean insertAll(Double lat, Double lon) throws RemoteException {
         Connection connection = getConnection();
         // Appel de l'API
         HttpResponse<String> response;
@@ -140,6 +139,12 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
             return stationRepo.getAllStations();
         } catch (SQLException e) {
             throw new RemoteException("Erreur lors de la récupération des stations", e);
+        }finally{
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                Log.warn("Erreur fermeture connexion : " + e.getMessage());
+            }
         }
     }
 
@@ -152,14 +157,17 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
             return stationRepo.getStation(idStation);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                Log.warn("Erreur fermeture connexion : " + e.getMessage());
+            }
         }
     }
     @Override
     public boolean refreshData() throws RemoteException{
         Connection connection = getConnection();
-        if (connection == null) {
-            return false;
-        }
         // Appel de l'API
         HttpResponse<String> response;
         try {

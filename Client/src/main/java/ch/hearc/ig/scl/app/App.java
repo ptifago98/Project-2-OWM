@@ -91,23 +91,26 @@ public class App {
                 menu();
                 break;
             case 2:
-                List<StationMeteo> stations = null;
-                System.out.println("------Voici la liste des stations enregistrées-----");
+                System.out.println("------ Chargement de la liste des stations... ---------");
                 try {
-                    stations = obj.getStations();
+                    List<StationMeteo> stations = obj.getStations();
+                    if (stations == null || stations.isEmpty()) {
+                        System.out.println("Aucune station disponible");
+                        menu();
+                        break;
+                    }
+                    System.out.println("------Voici la liste des stations enregistrées-----");
+                    for (StationMeteo s : stations) {
+                        System.out.println(s.getIdStation() + " - " + s.getNom());
+                    }
+                    System.out.println("---------------------");
                 } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }catch (NullPointerException e){
-                    System.out.println("Le système n'a pas pu accéder à la base");
+                    System.out.println("Erreur de communication avec le serveur : " + e.getMessage());
                 }
-                for (StationMeteo s : stations) {
-                    System.out.println(s.getIdStation() + " - " + s.getNom());
-                }
-                System.out.println("---------------------");
                 menu();
                 break;
             case 3:
-                System.out.println("Veuillez entrer l'identifiant de la station (Entrez 'Sortez-moi de là!' pour revenir au menu)");
+                System.out.println("Veuillez entrer l'identifiant de la station (Entrez 'exit' pour revenir au menu)");
                 System.out.print("Votre choix : ");
                 StationMeteo station;
                 String idStation;
@@ -117,7 +120,7 @@ public class App {
                 try {
                     do {
                         idStation = scanner.nextLine().trim();
-                        if(idStation.equals("0")){
+                        if(idStation.equals("exit")){
                             menu();
                         }
                         station = obj.getMeteo(idStation);
