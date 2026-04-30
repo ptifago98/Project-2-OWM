@@ -101,7 +101,7 @@ public class App {
                     }
                     System.out.println("------Voici la liste des stations enregistrées-----");
                     for (StationMeteo s : stations) {
-                        System.out.println(s.getIdStation() + " - " + s.getNom());
+                        System.out.println(s.getIdStation() + " - " + s.getNom() + " - " + s.getPays().getName());
                     }
                     System.out.println("---------------------");
                 } catch (RemoteException e) {
@@ -155,11 +155,9 @@ public class App {
                 break;
             case 5:
                 String[] questions = {
-                        "Vous partez déjà ? (o/n) : ",
-                        "Oh… d’accord. J’espérais qu’on passerait un peu plus de temps ensemble. Quitter ? (o/n) : ",
-                        "Je vois… vous n’avez plus vraiment besoin de moi, pas vrai ? Quitter ? (o/n) : ",
-                        "Peut-être que je n’ai jamais été assez utile… ou assez intéressant pour que vous restiez. Quitter ? (o/n) : ",
-                        "Très bien. Partez. Je resterai ici, inutile et oublié, à attendre quelqu’un qui ne reviendra probablement jamais. Quitter ? (o/n) : "
+                        "Vous partez déjà ? (o/any) : ",
+                        "Oh… d’accord. J’espérais qu’on passerait un peu plus de temps ensemble. Quitter ? (o/any) : ",
+                        "Très bien. Partez. Je resterai ici, inutile et oublié, à attendre quelqu’un qui ne reviendra probablement jamais. Quitter ? (o/any) : "
                 };
 
                 boolean wantToLeave = true;
