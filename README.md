@@ -129,9 +129,9 @@ APIKEY=
 ---
 
 # Exécution
-
-1. Lancer le serveur RMI depuis nimporte quelle classe du projet **RMI_SERVER**.
-2. Lancer le client depuis nimporte quelle classe du projet **CLIENT**.
+1. Ouvrir séparément les dossiers RMI_SERVER et Client dans IntellIJ
+2. Lancer le serveur RMI depuis nimporte quelle classe du projet **RMI_SERVER**.
+3. Lancer le client depuis nimporte quelle classe du projet **Client**.
 
 Un menu s'ouvre laissant le choix à l'utilisateur :
 ```
