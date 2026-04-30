@@ -24,12 +24,12 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     public OWMManager() throws RemoteException {
     }
     private Connection getConnection() throws RemoteException {
-        Connection conn = DBConnection.getConnection();
-        if (conn == null) {
+        Connection connection = DBConnection.getConnection();
+
+        if (connection == null) {
             Log.warn("Problème lors de la connexion à la base de données");
-            throw new RemoteException("Impossible de se connecter à la base de données");
         }
-        return conn;
+        return connection;
     }
     // Persistance en base de données
 
@@ -37,6 +37,12 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     @Override
     public boolean insertAll(Double lat, Double lon) throws RemoteException {
         Connection connection = getConnection();
+
+        if (connection == null) {
+            return false;  // Le client recevra simplement false
+        }
+
+
         // Appel de l'API
         HttpResponse<String> response;
         try {
@@ -133,6 +139,11 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     @Override
     public List<StationMeteo> getStations() throws RemoteException {
         Connection connection = getConnection();
+
+        if (connection == null) {
+            return null;  // Le client recevra simplement false
+        }
+
         StationRepository stationRepo = new StationRepository(connection);
 
         try {
@@ -151,6 +162,11 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     @Override
     public StationMeteo getMeteo(String idStation) throws RemoteException{
         Connection connection = getConnection();
+
+        if (connection == null) {
+            return null;  // Le client recevra simplement false
+        }
+
         StationRepository stationRepo = new StationRepository(connection);
 
         try {
@@ -168,6 +184,11 @@ public class OWMManager extends UnicastRemoteObject implements IOWMManager {
     @Override
     public boolean refreshData() throws RemoteException{
         Connection connection = getConnection();
+
+        if (connection == null) {
+            return false;  // Le client recevra simplement false
+        }
+
         // Appel de l'API
         HttpResponse<String> response;
         try {

@@ -60,7 +60,7 @@ public class StationRepository {
         }
     }
     public List<StationMeteo> getAllStations() throws SQLException {
-        final String QUERY = "SELECT S.ID_STATION, S.TIME_ZONE, S.LATITUDE, S.LONGITUDE, S.NOM, P.CODE FROM STATION S JOIN PAYS P ON P.NUMERO = S.NUM_PAYS";
+        final String QUERY = "SELECT S.ID_STATION, S.TIME_ZONE, S.LATITUDE, S.LONGITUDE, S.NOM AS NOM_STATION, P.CODE, P.NOM AS NOM_PAYS FROM STATION S JOIN PAYS P ON P.NUMERO = S.NUM_PAYS";
         String stationResult;
         List<StationMeteo> stations = new ArrayList<>();
         PreparedStatement myStatement;
@@ -68,19 +68,18 @@ public class StationRepository {
         try{
             myStatement = CONNECTION.prepareStatement(QUERY);
             ResultSet result = myStatement.executeQuery();
-            //Pays pays = new Pays();
+
 
 
             while (result.next()) {
-                //pays.setCode(result.getString("CODE"));
-                //ApiCallPaysService.callApiName(pays);
+
                 StationMeteo stationMeteo = new StationMeteo(
                         result.getString("ID_STATION"),
                         result.getInt("TIME_ZONE"),
-                        null,
+                        new Pays(result.getString("NOM_PAYS"),result.getString("CODE")),
                         result.getDouble("LATITUDE"),
                         result.getDouble("LONGITUDE"),
-                        result.getString("NOM")
+                        result.getString("NOM_STATION")
                 );
                 stations.add(stationMeteo);
             }
